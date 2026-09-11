@@ -23,8 +23,9 @@ public class AvailabilityService {
             boolean existingStartsBeforeCandidateEnds = existing.start().isBefore(end);
             boolean overlaps = candidateStartsBeforeExistingEnds && existingStartsBeforeCandidateEnds;
             hasConflict = overlaps;
+            if(hasConflict) return false;
         }
 
-        return !hasConflict;
+        return true;
     }
 }

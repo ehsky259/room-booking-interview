@@ -17,6 +17,42 @@ class BookingApiTest {
     @Autowired
     private MockMvc mockMvc;
 
+    /*
+    与 booking-2021 重叠，必须返回 false
+     */
+    @Test
+    void hasWindowOverlapsFirst() throws Exception {
+        mockMvc.perform(get("/rooms/room-202/availability")
+                        .param("start", "2030-01-15T10:15:00")
+                        .param("end", "2030-01-15T10:45:00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(false));
+    }
+
+    /*
+    与 booking-2022 重叠，必须返回 false
+     */
+    @Test
+    void hasWindowOverlapsSecond() throws Exception {
+        mockMvc.perform(get("/rooms/room-202/availability")
+                        .param("start", "2030-01-15T12:15:00")
+                        .param("end", "2030-01-15T12:45:00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(false));
+    }
+
+    /*
+    未发生时间段重叠，返回true
+     */
+    @Test
+    void  noWindowOverlaps() throws Exception {
+        mockMvc.perform(get("/rooms/room-202/availability")
+                        .param("start", "2030-01-15T10:30:00")
+                        .param("end", "2030-01-15T11:00:00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(true));
+    }
+
     @Test
     void returnsExistingBooking() throws Exception {
         mockMvc.perform(get("/rooms/room-101/bookings/booking-1011"))

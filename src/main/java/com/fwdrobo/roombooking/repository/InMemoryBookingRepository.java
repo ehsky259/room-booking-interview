@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fwdrobo.roombooking.domain.Booking;
 import org.springframework.stereotype.Repository;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Repository;
 public class InMemoryBookingRepository {
 
     private final Map<String, Booking> bookings = new LinkedHashMap<>();
-    private final AtomicInteger nextId = new AtomicInteger(3001);
+//    private final AtomicInteger nextId = new AtomicInteger(3001);
 
     public InMemoryBookingRepository() {
         saveSeed(new Booking(
@@ -49,7 +48,9 @@ public class InMemoryBookingRepository {
     }
 
     public synchronized Booking create(String roomId, LocalDateTime start, LocalDateTime end) {
-        String bookingId = "booking-" + nextId.getAndIncrement();
+        // 获取当前房间的总预约数，按照"房间名+创建的第几个房间进行命名"
+        List<Booking> currentRoomBookings = findByRoomId(roomId);
+        String bookingId = "booking-" + roomId.substring(5) + (currentRoomBookings.size() + 1);
         Booking booking = new Booking(bookingId, roomId, start, end);
         bookings.put(bookingId, booking);
         return booking;
